@@ -28,6 +28,7 @@ void Server::createSocket()
         close(serverSocket);
 
     }
+    
 
     // Bekleme moduna geçilmesi
     if (listen(serverSocket, 10) == -1) {
