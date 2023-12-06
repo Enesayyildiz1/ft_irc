@@ -1,4 +1,6 @@
 #include "headers/Server.hpp"
+#include "headers/error.hpp"
+#include "headers/libraries.hpp"
 
 Server::Server(std::string _port)
 {
@@ -9,50 +11,70 @@ Server::Server(std::string _port)
 
 void Server::createSocket()
 {
-     // Soket oluşturulması
-    int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+   
+    sockaddr_in serverAddress, clientAddress;
+    socklen_t clientAddrLen = sizeof(clientAddress);
+
+    // Socket oluşturma
+    serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket == -1) {
-        std::cerr << "Soket oluşturulamadı." << std::endl;
+        perror("Error creating socket");
 
     }
 
     // Server adresinin tanımlanması
-    sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = INADDR_ANY;
-    serverAddress.sin_port = htons(this->port);  // Port numarası
+    serverAddress.sin_port = htons(this->port);  // Örnek bir port numarası
 
     // Soketin adres ve port numarasına bağlanması
     if (bind(serverSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
-        std::cerr << "Bağlanma hatası." << std::endl;
+        perror("Binding error");
         close(serverSocket);
 
     }
-    
 
     // Bekleme moduna geçilmesi
-    if (listen(serverSocket, 10) == -1) {
-        std::cerr << "Bekleme hatası." << std::endl;
+    if (listen(serverSocket, 1) == -1) {
+        perror("Listen error");
         close(serverSocket);
-
+ 
     }
 
-    std::cout << "Sunucu başlatıldı. Bekleniyor..." << std::endl;
+    std::cout << "Server listening on port" << this->port << std::endl;
 
-    // İstemcilerin kabul edilmesi
-    int clientSocket = accept(serverSocket, nullptr, nullptr);
+    // İstemci bağlantısını kabul etme
+    clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddress, &clientAddrLen);
     if (clientSocket == -1) {
-        std::cerr << "İstemci kabul hatası." << std::endl;
+        perror("Accept error");
         close(serverSocket);
 
     }
 
-    std::cout << "İstemci bağlandı." << std::endl;
+    std::cout << "Client connected" << std::endl;
 
-    // Buradan itibaren KVirc protokolüne özel işlemleri gerçekleştirin.
 
-    // Soketin kapatılması
+
+    char buffer[256];
+    ssize_t bytesRead = read(clientSocket, buffer, sizeof(buffer));
+    if (bytesRead == -1) {
+        perror("Read error");
+        close(clientSocket);
+        close(serverSocket);
+
+    }
+
+    // Ping mesajını yazdırma
+    std::cout << "Received ping from client: " << buffer << std::endl;
+
+    // Pong mesajını gönderme
+    const char* pongMessage = "pong";
+    ssize_t bytesSent = write(clientSocket, pongMessage, strlen(pongMessage));
+    if (bytesSent == -1) {
+        perror("Write error");
+    }
+
+    // Soketleri kapatma
     close(clientSocket);
     close(serverSocket);
-    
 }

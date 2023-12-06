@@ -12,6 +12,8 @@ class Server
     public:
         Server(std::string av1);
         void createSocket();
+        int serverSocket;
+        int  clientSocket;
 };
 
 #endif
