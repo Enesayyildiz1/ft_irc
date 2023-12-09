@@ -7,3 +7,8 @@
 #include<fcntl.h>
 #include<vector>
 #include <sstream>
+#include<netdb.h>
+#include<poll.h>
+# include <deque>
+# include <vector>
+# include <string>

@@ -5,7 +5,9 @@ FLAGS    := -Wall -Wextra -Werror -std=c++98
 SRCS := main.cpp \
 		Server.cpp \
         checkarg.cpp \
-		error.cpp
+		error.cpp \
+		Invoker.cpp \
+		
 		
 OBJS        := ${SRCS:.cpp=.o}
 

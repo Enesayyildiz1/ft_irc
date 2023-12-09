@@ -4,7 +4,7 @@
 int main(int ac, char **av) {
    
     checkarg::check_args(ac);
-    Server server(av[1]);
-    server.createSocket();
+    Server ircserv("127.0.0.1", av[1], av[2]);
+    ircserv.start();
     return 0;
 }

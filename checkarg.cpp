@@ -2,9 +2,9 @@
 
 void checkarg::check_args(int ac)
 {
-    if(ac != 2)
+    if(ac != 3)
     {
-        std::cerr << "Usage <port>" << std::endl;
+        std::cerr << "Usage <port> <password>" << std::endl;
         exit(1);
     }
 }
