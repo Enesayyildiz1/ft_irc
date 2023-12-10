@@ -7,8 +7,8 @@ SRCS := main.cpp \
         checkarg.cpp \
 		error.cpp \
 		Invoker.cpp \
-		
-		
+		User.cpp 
+
 OBJS        := ${SRCS:.cpp=.o}
 
 .cpp.o:

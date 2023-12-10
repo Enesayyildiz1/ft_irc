@@ -18,6 +18,7 @@ void Server::start()
     std::vector<pollfd>::iterator it;
     _pollfds.push_back(newPollfd);
 
+    //commandleri handle eden kısım
     _Invoker = new Invoker(this);
 
     while (true) {
@@ -25,6 +26,9 @@ void Server::start()
 		it = _pollfds.begin();
 		if (poll(&(*it), _pollfds.size(), -1) == -1)
 			throw std::runtime_error("Error: poll");
+        //action fonksiyonunu yapılandır.
+        this->action();
+        
 
 	}
 }
@@ -81,4 +85,56 @@ int Server::createSocket()
 
     // Oluşturulan soketi döndür
     return sock;
+}
+
+int Server::acceptUser()
+{
+    int client_d;
+    sockaddr_in client_addr;
+    socklen_t s_size;
+
+    s_size = sizeof(client_addr);
+    client_d = accept(_sock, (sockaddr*)&client_addr, &s_size);
+    if(client_d == -1)
+        throw std::runtime_error("error accept");
+
+    pollfd newPollfd ={client_d, POLLIN,0};
+    _pollfds.push_back(newPollfd);
+    if (fcntl(client_d, F_SETFL, O_NONBLOCK) == -1)
+	 	throw std::runtime_error("error fcntl");
+
+    User	*newUser = new User(client_d, inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+	_users.push_back(newUser);
+
+    std::cout << "New client " << newUser->getName() << "@" << newUser->getHost() << ":" << newUser->getPort() << std::endl;
+	return client_d;
+
+    
+}
+
+void			Server::greeting(int client_d)const
+{
+	std::string str("PASS NICK USER\n\r");
+	if (send(client_d, str.c_str(), str.length(), 0) == -1)
+		throw std::runtime_error("error send");
+}
+
+void Server::action()
+{
+    pollfd curPollfd;
+
+    for(std::vector<pollfd>::iterator itPollfd = _pollfds.begin(); itPollfd != _pollfds.end(); itPollfd++)
+    {
+        curPollfd = *itPollfd;
+        if((curPollfd.revents &POLL_IN) == POLL_IN)
+        {
+            if(curPollfd.fd == _sock)
+            {
+                this->greeting(acceptUser());
+				break ;
+            }
+        } 
+      
+    }
+
 }

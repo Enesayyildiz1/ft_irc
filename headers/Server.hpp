@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include"libraries.hpp"
 #include"Invoker.hpp"
+#include"User.hpp"
 
 
 class Server;
@@ -20,11 +21,15 @@ class Server
 		const std::string		_port;
 		const std::string		_password;
         std::vector<pollfd>		_pollfds;
+        std::vector<User *>     _users;
         std::string _serverName;
         Invoker					*_Invoker;
         int createSocket();
     public:
         Server(const std::string host, const std::string port, const std::string password);
+        void			greeting(int client_d)const;
+        int acceptUser();
+        void action();
         void start();
 };
 
