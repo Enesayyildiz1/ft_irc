@@ -32,7 +32,9 @@ class User
 		void			setNick(std::string nickname);
 		void			setUsername(std::string username);
 		void			setRealname(std::string realname);
+		void			appendMessage(std::string message);
         std::string			get_id();
+		void clearMessage();
 };
 
 

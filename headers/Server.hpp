@@ -28,6 +28,7 @@ class Server
     public:
         Server(const std::string host, const std::string port, const std::string password);
         void			greeting(int client_d)const;
+        int recvMsg(User *user);
         int acceptUser();
         void action();
         void start();

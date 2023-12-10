@@ -1,4 +1,5 @@
 #include"headers/User.hpp"
+#include "headers/ircserv.hpp"
 
 User::User(int sockfd, char *host, int port)
 {
@@ -29,6 +30,18 @@ void			User::setNick(std::string nick) { _nick = nick.substr(0, 9); }
 void			User::setUsername(std::string username) { _username = username; }
 void			User::setRealname(std::string realname) { _realname = realname; }
 
+void User::clearMessage()
+{
+	_message.clear();
+}
+
+void			User::appendMessage(std::string message)
+{
+	_message.append(message);
+	_message.erase(_message.find_last_not_of(MSG_DELIMITER) + 1);
+	_message.append("\n");
+}
+
 std::string User::get_id() {
 		std::string s;
 
@@ -36,7 +49,7 @@ std::string User::get_id() {
 				"0123456789"
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 				"abcdefghijklmnopqrstuvwxyz";
-		srand( time( 0 ) ); // автоматическая рандомизация
+		srand( time( 0 ) ); 
 		for (int i = 0; i < 10; ++i) {
 			s += alphanum[rand() % (sizeof(alphanum) - 1)];
 		}

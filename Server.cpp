@@ -2,6 +2,7 @@
 #include "headers/error.hpp"
 #include "headers/libraries.hpp"
 #include "headers/Invoker.hpp"
+#include "headers/ircserv.hpp"
 
 Server::Server(const std::string host, const std::string port, const std::string password): _host(host), _port(port), _password(password)
 {
@@ -51,7 +52,7 @@ int Server::createSocket()
 
     for (p = servinfo; p != nullptr; p = p->ai_next) {
         // Socket oluştur
-        sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol); //?
 
         // Socket oluşturma hatası kontrolü
         if (sock == -1)
@@ -131,10 +132,41 @@ void Server::action()
             if(curPollfd.fd == _sock)
             {
                 this->greeting(acceptUser());
+                std::cout << curPollfd.fd << "-" << _sock;
 				break ;
+            }
+            else
+            {
+                std::vector<User *>::iterator itUser = _users.begin();
+                std::advance(itUser, std::distance(_pollfds.begin(),itPollfd)-1);
+                ssize_t byteReceived;
+                byteReceived = recvMsg(*itUser);
+                std::cout << byteReceived;
+
+
             }
         } 
       
     }
-
 }
+
+int Server::recvMsg(User *user)
+{
+    ssize_t byteReceived;
+    char message[100];
+
+    user->clearMessage();
+    memset(message, '\0', sizeof(message));
+    while(!std::strstr(message, MSG_DELIMITER))
+    {
+        memset(message, '\0', sizeof(message));
+        byteReceived = recv(user->getSockFd(),message, sizeof(message), 0);
+        if(byteReceived <= 0)
+            break;
+        user->appendMessage(message);
+        
+    }
+    std::cout << message << " " << byteReceived;
+    return (byteReceived);
+} 
+
