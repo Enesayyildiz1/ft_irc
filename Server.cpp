@@ -33,6 +33,7 @@ void Server::start()
 
 	}
 }
+
 int Server::createSocket()
 {
    addrinfo hints;
@@ -113,6 +114,32 @@ int Server::acceptUser()
     
 }
 
+Channel			*Server::getChannel(std::string name)
+{
+	std::vector<Channel *>::iterator channel;
+    std::string tmp = name;
+	if (name.empty())
+        return nullptr;
+
+    if (tmp.c_str()[0] == '#')
+        tmp = tmp.substr(1, tmp.size());
+	for (channel = _channels.begin(); channel != _channels.end(); channel++)
+	{
+		if ((*channel)->getName() == tmp)
+			return *channel;
+	}
+	return nullptr;
+}
+
+
+Channel		*Server::createChannel(std::string name, User *admin)
+{
+	Channel	*newChannel = new Channel(name, admin, this);
+	_channels.push_back(newChannel);
+	return newChannel;
+}
+
+
 void			Server::greeting(int client_d)const
 {
 	std::string str("PASS NICK USER\n\r");
@@ -127,12 +154,36 @@ void Server::action()
     for(std::vector<pollfd>::iterator itPollfd = _pollfds.begin(); itPollfd != _pollfds.end(); itPollfd++)
     {
         curPollfd = *itPollfd;
+        if ((curPollfd.revents & POLLHUP) == POLLHUP)
+        {
+            std::vector<User *>::iterator	itUser = _users.begin();
+            std::advance(itUser, std::distance(_pollfds.begin(), itPollfd) - 1);
+
+			if (_users.empty())
+			{
+				break;
+			}
+
+            if ((*itUser)->didRegister() && ((*itUser)->getName() != "user_example"))
+            {
+                std::cout << "disconnect @" << (*itUser)->getName() << std::endl;
+                this->removeUser((*itUser)->getId());
+            }
+            else
+            {
+                std::cout << "disconnect not registered user" << std::endl;
+                this->removeUser((*itUser)->getId());
+            }
+
+            break;
+
+        }
         if((curPollfd.revents &POLL_IN) == POLL_IN)
         {
             if(curPollfd.fd == _sock)
             {
                 this->greeting(acceptUser());
-                std::cout << curPollfd.fd << "-" << _sock;
+                //std::cout << curPollfd.fd << "-" << _sock;
 				break ;
             }
             else
@@ -141,8 +192,8 @@ void Server::action()
                 std::advance(itUser, std::distance(_pollfds.begin(),itPollfd)-1);
                 ssize_t byteReceived;
                 byteReceived = recvMsg(*itUser);
-                std::cout << byteReceived;
-
+                //std::cout << "*" << byteReceived;
+                _Invoker->processData(*itUser, (*itUser)->getMessage());
 
             }
         } 
@@ -165,8 +216,97 @@ int Server::recvMsg(User *user)
             break;
         user->appendMessage(message);
         
+        
     }
-    std::cout << message << " " << byteReceived;
     return (byteReceived);
 } 
+
+bool Server::checkPassword(std::string userPassword)
+{
+    if(userPassword == _password)
+        return true;
+    return false;
+}
+
+std::string Server::getPrefix() const {
+    return ":" + _serverName;
+}
+
+void Server::sendMessage(User* to, std::string message)
+{
+    to->getReply(getPrefix() + " " + message);
+}
+
+void			Server::removeUser(std::string id)
+{
+    std::cout << "id: " << id << " nickname: " << this->getUserById(id)->getNick() << std::endl;
+    std::cout << "socket fd: " << this->getUserById(id)->getSockFd() << std::endl;
+    this->removeUserFromPoll(id);
+    this->removeUserFromUsers(id);
+}
+
+void Server::removeUserFromUsers(std::string id) {
+	std::vector<User *>::iterator	it = _users.begin();
+	std::vector<User *>::iterator	ite = _users.end();
+	for (; it != ite; it++ )
+	{
+		if ((*it)->getId() == id)
+		{
+            delete (*it);
+            _users.erase(it);
+            break ;
+		}
+	}
+}
+
+void Server::removeUserFromPoll(std::string id) {
+	int socketUser = this->getUserById(id)->getSockFd();
+	std::vector<pollfd>::iterator	it = _pollfds.begin();
+	std::vector<pollfd>::iterator	ite = _pollfds.end();
+	for (; it != ite; it++ )
+	{
+		if (socketUser == (*it).fd)
+		{
+			close((*it).fd);
+			_pollfds.erase(it);
+			break ;
+		}
+	}
+}
+
+User *Server::getUser(std::string name)
+{
+    for(std::vector<User*>::iterator itUser = _users.begin(); itUser != _users.end(); itUser++)
+    {
+        std::string  cur_name = (*itUser)->getName();
+        if(cur_name == name)
+            return *itUser;
+    } 
+    return nullptr;
+}
+
+User *Server::getUserById(std::string id) {
+	for (std::vector<User *>::iterator itUser = _users.begin(); itUser != _users.end(); itUser++)
+	{
+		std::string	_id = (*itUser)->getId();
+		if (_id == id)
+			return *itUser;
+	}
+	return nullptr;
+}
+
+std::vector<Channel *> Server::getChannels() { return _channels; }
+
+void	Server::deleteChannel(Channel *channel) {
+	std::vector<Channel *>::iterator it;
+
+	for (it = _channels.begin(); it < _channels.end(); it++)
+	{
+		if (*it == channel)
+		{
+			_channels.erase(it);
+			break ;
+		}
+	}
+}
 

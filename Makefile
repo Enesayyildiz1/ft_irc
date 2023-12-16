@@ -1,13 +1,29 @@
 NAME        := ircserv
 CC         := c++
-FLAGS    := -Wall -Wextra -Werror -std=c++98
+FLAGS    :=  -std=c++98 -fsanitize=address
 
 SRCS := main.cpp \
 		Server.cpp \
         checkarg.cpp \
 		error.cpp \
 		Invoker.cpp \
-		User.cpp 
+		User.cpp \
+		Command.cpp \
+		commands/HelpCommand.cpp \
+		commands/PassCommand.cpp \
+		commands/NickCommand.cpp \
+		commands/UserCommand.cpp \
+		commands/NoticeCommand.cpp \
+		commands/JoinCommand.cpp \
+		commands/PrivateMessageCommand.cpp \
+		commands/KickCommand.cpp \
+		commands/ListCommand.cpp \
+		commands/PartCommand.cpp \
+		commands/WhoCommand.cpp \
+		commands/QuitCommand.cpp \
+		channel/Channel.cpp \
+
+
 
 OBJS        := ${SRCS:.cpp=.o}
 

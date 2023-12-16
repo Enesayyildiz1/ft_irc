@@ -8,6 +8,7 @@ User::User(int sockfd, char *host, int port)
     _host = host;
     _port = port;
     _didEnter = false;
+	_channel = nullptr;
     _id = get_id();
 }
 
@@ -22,13 +23,15 @@ std::string		User::getName() const { return _nick; }
 std::string		User::getHost() const { return _host; }
 std::string		User::getNick() const { return _nick; }
 std::string		User::getMessage() const { return _message; }
-
+Channel			*User::getChannel() const { return _channel; }
+std::string User::getId() const { return _id; }
 
 std::string		User::getSign() const { return _nick + "@" + _host + ":" + std::to_string(_port); }
 
 void			User::setNick(std::string nick) { _nick = nick.substr(0, 9); }
 void			User::setUsername(std::string username) { _username = username; }
 void			User::setRealname(std::string realname) { _realname = realname; }
+void			User::setChannel(Channel *channel) { _channel = channel; }
 
 void User::clearMessage()
 {
@@ -42,6 +45,13 @@ void			User::appendMessage(std::string message)
 	_message.append("\n");
 }
 
+void			User::removeUserFromChannel()
+{
+	if (_channel != nullptr)
+		this->_channel->removeUser(this);
+}
+
+
 std::string User::get_id() {
 		std::string s;
 
@@ -54,4 +64,35 @@ std::string User::get_id() {
 			s += alphanum[rand() % (sizeof(alphanum) - 1)];
 		}
 		return s;
+}
+
+void User::getReply(std::string message)
+{
+	std::string finalMessage;
+
+	finalMessage = message + MSG_DELIMITER;
+	send(_sockFd, finalMessage.c_str(), finalMessage.length(), 0);
+}
+
+void	User::sendMessageToUser(User* sender, User* userTo, std::string message) {
+
+	sender->sendMessage(userTo, " #" + this->getName() +  " :" + message + "\r\n");
+}
+
+void User::doRegister()
+{
+	if(_didEnter && _nick != "" && _username != "")
+	{
+		this->getReply(RPL_WELCOME(_nick, _username, _host));
+		_didRegister = true;
+	}
+}
+std::string User::getPrefix() const
+{
+	return ":" + _nick ;
+}
+
+void User::sendMessage(User *to,std::string message)
+{
+	to->getReply(this->getPrefix() + " " + message);
 }

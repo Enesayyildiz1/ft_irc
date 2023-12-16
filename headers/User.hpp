@@ -1,6 +1,9 @@
 #ifndef USER_CLASS_HPP
 #define USER_CLASS_HPP
 #include"libraries.hpp"
+#include "../channel/Channel.hpp"
+
+class Channel;
 class User
 {
     private:
@@ -14,6 +17,7 @@ class User
 		std::string				_username;
 		std::string				_realname;
 		std::string				_message;
+		Channel*			_channel;
     public:
         User(int sockFd, char *host, int port);
         ~User();
@@ -33,6 +37,13 @@ class User
 		void			setUsername(std::string username);
 		void			setRealname(std::string realname);
 		void			appendMessage(std::string message);
+		std::string getId() const ;
+		void			getReply(std::string message);
+		void sendMessage(User *to,std::string message);
+		void			setChannel(Channel *channel);
+		Channel			*getChannel() const;
+		void    removeUserFromChannel();
+		void	sendMessageToUser(User* sender, User* userTo, std::string message);
         std::string			get_id();
 		void clearMessage();
 };
