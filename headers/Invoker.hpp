@@ -25,11 +25,12 @@ class Invoker
 
     public:
         Invoker(Server* server);
+        virtual ~Invoker();
         void processCommand(User *sender, std::deque<std::string> args);
         void processData(User *sender, std::string data);
         std::deque<std::string> dataToArgs(std::string data);
         bool isCommand(std::string data);
-		virtual ~Invoker();
+		
 };
 
 

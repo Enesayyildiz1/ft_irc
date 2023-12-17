@@ -11,6 +11,7 @@
 class Channel;
 class Server;
 class User;
+using namespace std;
 
 # define MAX_CONNECTION				1000
 
@@ -30,7 +31,10 @@ class Server
 
     public:
         Server(const std::string host, const std::string port, const std::string password);
+        ~Server();
         void			greeting(int client_d)const;
+        void handleClientData(const pollfd& curPollfd);
+        void handlePollHup(const pollfd& curPollfd) ;
         int recvMsg(User *user);
         int acceptUser();
         bool checkPassword(std::string userPassword);

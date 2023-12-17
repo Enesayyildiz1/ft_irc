@@ -11,6 +11,7 @@
 #include "headers/ListCommand.hpp"
 #include "headers/PartCommand.hpp"
 #include "headers/QuitCommand.hpp"
+#include "headers/WhoCommand.hpp"
 Invoker::Invoker(Server *server) : _server(server)
 {
 
@@ -26,11 +27,16 @@ Invoker::Invoker(Server *server) : _server(server)
     _commands.push_back(new ListCommand());
     _commands.push_back(new PartCommand());
     _commands.push_back(new QuitCommand());
+    _commands.push_back(new WhoCommand());
     
 }
 
 Invoker::~Invoker() {
+	vector<Command*>::iterator it;
 
+	for (it = _commands.begin(); it != _commands.end(); it++) {
+		delete *it;
+	}
 }
 
 bool Invoker::isCommand(std::string data)
@@ -96,7 +102,7 @@ std::deque<std::string> Invoker::dataToArgs(std::string data)
 void Invoker::processData(User *sender, std::string data)
 {
     std::deque<std::string> arguments = dataToArgs(data);
-    isCommand(arguments[0]);
+    //isCommand(arguments[0]);
     if(!arguments.empty() && isCommand(arguments[0]))
     {
         std::cout << "@" << sender->getName() << " " << data;
