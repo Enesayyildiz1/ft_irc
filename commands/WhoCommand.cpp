@@ -8,25 +8,31 @@ WhoCommand::WhoCommand() {
 WhoCommand::~WhoCommand() {}
 
 void WhoCommand::execute() {
+    // Kontrol: Gönderen kayıt oldu mu?
+    if (!_sender->didRegister())
+        throw ERR_RESTRICTED;
 
-	if (!_sender->didRegister())
-		throw ERR_RESTRICTED;
-	if (_args.size() < 1)
-		throw ERR_NEEDMOREPARAMS(_name);
+    // Kontrol: Argüman sayısı doğru mu?
+    if (_args.size() != 2)
+        throw ERR_NEEDMOREPARAMS(_name);
 
-	Channel *channel = _server->getChannel(_args[1]);
-	if (channel == nullptr)
-		throw ERR_NOSUCHCHANNEL(_args[1]);
+    // Kanalı al ve kontrol et
+    Channel *channel = _server->getChannel(_args[1]);
+    if (channel == nullptr)
+        throw ERR_NOSUCHCHANNEL(_args[1]);
 
-	std::vector<User*> users = channel->getUsers();
-	_sender->getReply("Channel " + channel->getName() + " has " + std::to_string(users.size()) + " users");
+    // Kanaldaki kullanıcıları al
+    std::vector<User*> users = channel->getUsers();
 
-	std::vector<User*>::iterator it;
-	for (it = users.begin(); it != users.end(); it++) {
-		if (channel->getAdmin() == *it)
-			_sender->getReply("@" + (*it)->getName());
-		else
-			_sender->getReply((*it)->getName());
-	}
+    // Kanal bilgisini ve kullanıcı sayısını gönder
+    _sender->getReply("Channel " + channel->getName() + " has " + std::to_string(users.size()) + " users");
 
+    // Kullanıcıları sırayla gönder
+    for (const auto& user : users) {
+        // Kontrol: Kullanıcı admin mi?
+        if (channel->getAdmin() == user)
+            _sender->getReply("@" + user->getName());
+        else
+            _sender->getReply(user->getName());
+    }
 }

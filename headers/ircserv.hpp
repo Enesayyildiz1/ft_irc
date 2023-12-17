@@ -14,6 +14,7 @@
 # define ERR_CHANOPRIVSNEEDED(channel)			("482 * #" + channel + ":You're not channel operator")
 # define ERR_NOTONCHANNEL(channel)				("442 * " + channel + ":You're not on that channel")
 # define ERR_USERNOTINCHANNEL(nick, channel)	("441 * " + nick + " #" + channel + ":They aren't on that channel")
+# define ERR_ALREADYINCHANNEL(channel)          ("330 * " + " #" + channel + ":You have already join that channel")
 
 #define RPL_LIST(channel, usersCount)			("322 * #" + channel + " " + usersCount)
 #define RPL_LISTEND								"323 * :End of LIST"

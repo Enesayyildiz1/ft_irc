@@ -8,28 +8,39 @@ KickCommand::KickCommand() {
 KickCommand::~KickCommand() {}
 
 void KickCommand::execute() {
+    // Kontrol: Gönderen kayıtlı mı?
+    if (!_sender->didRegister())
+        throw ERR_RESTRICTED;
 
-	if (!_sender->didRegister())
-		throw ERR_RESTRICTED;
-	if (_args.size() < 2)
-		throw ERR_NEEDMOREPARAMS(_name);
-	if (!isAllowedChannelName(_args[2]))
-		throw ERR_BADCHANMASK(_args[2]);
+    // Kontrol: Argüman sayısı doğru mu?
+    if (_args.size() < 2)
+        throw ERR_NEEDMOREPARAMS(_name);
 
-	Channel	*channel = _server->getChannel(_args[2]);
+    // Kontrol: Kanal adı geçerli mi?
+    if (!isAllowedChannelName(_args[2]))
+        throw ERR_BADCHANMASK(_args[2]);
 
-	if (channel == nullptr)
-		throw ERR_NOSUCHCHANNEL(_args[2]);
-	if (channel->getAdmin() != _sender)
-		throw ERR_CHANOPRIVSNEEDED(channel->getName());
-	if (!channel->getUser(_sender->getNick()))
-		throw ERR_NOTONCHANNEL(channel->getName());
+    // Kanalı al ve kontrol et
+    Channel* channel = _server->getChannel(_args[2]);
+    if (!channel)
+        throw ERR_NOSUCHCHANNEL(_args[2]);
 
-	User *userToKick = channel->getUser(_args[1]);
+    // Gönderen kanal yöneticisi mi?
+    if (channel->getAdmin() != _sender)
+        throw ERR_CHANOPRIVSNEEDED(channel->getName());
 
-	if (userToKick == nullptr)
-		throw ERR_USERNOTINCHANNEL(_args[1], channel->getName());
+    // Gönderen kanalda mı?
+    if (!channel->getUser(_sender->getNick()))
+        throw ERR_NOTONCHANNEL(channel->getName());
 
-	channel->sendMessageToChannel(_sender, "kicked " + userToKick->getName(), this->_name);
-	channel->removeUser(userToKick);
+    // Kullanıcıyı atılacak kullanıcı olarak al
+    User* userToKick = channel->getUser(_args[1]);
+    if (!userToKick)
+        throw ERR_USERNOTINCHANNEL(_args[1], channel->getName());
+
+    // Kanala mesaj gönder
+    channel->sendMessageToChannel(_sender, "Kicked " + userToKick->getName(), _name);
+
+    // Kullanıcıyı kanaldan kaldır
+    channel->removeUser(userToKick);
 }

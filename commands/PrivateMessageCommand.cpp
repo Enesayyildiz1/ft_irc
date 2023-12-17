@@ -1,106 +1,77 @@
 #include "../headers/PrivateMessageCommand.hpp"
 
 PrivateMessageCommand::PrivateMessageCommand() {
-	_name = "PRIVMSG";
-	_description = "";
+    _name = "PRIVMSG";
+    _description = "";
 }
 
 PrivateMessageCommand::~PrivateMessageCommand() {}
 
 void PrivateMessageCommand::execute() {
-	if (!_sender->didRegister())
-		throw ERR_RESTRICTED;
+    if (!_sender->didRegister())
+        throw ERR_RESTRICTED;
 
-    if (this->getUserFromArg() != nullptr) {
-        User* user = this->getUserFromArg();
-        std::string tmp;
-        tmp = this->makeString();
-        //std::cout << tmp << std::endl;
-        //std::cout << "yolucam" << std::endl;
+    if (getUserFromArg() != nullptr) {
+        User *user = getUserFromArg();
+        std::string tmp = makeString();
         if (user && !tmp.empty()) {
-            _sender->sendMessageToUser(_sender, user,"PRIVMSG " + user->getNick() +  " :"+ this->makeString());
+            _sender->sendMessageToUser(_sender, user, "PRIVMSG " + user->getNick() + " :" + tmp);
         }
-        
-    }
-    else if (this->getChannelFromArg() != nullptr) {
-        Channel* tmp_channel =  this->getChannelFromArg();
-        std::string tmp;
-        tmp = this->makeString();
+
+    } else if (getChannelFromArg() != nullptr) {
+        Channel *tmp_channel = getChannelFromArg();
+        std::string tmp = makeString();
         std::cout << tmp << std::endl;
         if (tmp_channel && !tmp.empty()) {
-            tmp_channel->sendMessageToChannel(_sender, tmp, this->_name);
+            tmp_channel->sendMessageToChannel(_sender, tmp, _name);
         }
-    }
-    else {
+    } else {
         _sender->getReply("error nick or channel not found");
     }
-	this->clearArg();
+    clearArg();
 }
+
 
 std::string PrivateMessageCommand::makeString() {
-
-    std::string tmp;
-    for (size_t i  = 1; i <= _args.size(); i++)
-    {
-        if (!this->_args[i].empty())
-        {
-            if (tmp.empty()) {
-                tmp =  this->_args[i];
-            }
-            else {
-                tmp = tmp +  " " + this->_args[i];
-            }
-        }
+    if (_args.empty()) {
+        return "";
     }
-    tmp.erase(tmp.find_last_not_of(MSG_DELIMITER) + 1);
-    return tmp;
+
+    std::stringstream ss;
+    ss << _args[0];
+
+    for (size_t i = 1; i < _args.size(); i++) {
+        ss << " " << _args[i];
+    }
+
+    return ss.str();
 }
 
-User *PrivateMessageCommand::getUserFromArg() {
-    if (_args.empty()) {
-        return nullptr;
-    }
-    else {
-        std::cout << _args[1];
-        User* user = _server->getUser(_args[1]);
 
-        if (user == nullptr) {
-            return  nullptr;
-        }
-        else {
-            if(user  != nullptr) {
-                return  user;
-            }
-        }
+User *PrivateMessageCommand::getUserFromArg() {
+    if (_args.size() < 2) {
         return nullptr;
     }
+
+    std::cout << _args[1];
+    User *user = _server->getUser(_args[1]);
+
+    if (user == nullptr) {
+        return nullptr;
+    }
+
+    return user;
 }
 
 void PrivateMessageCommand::clearArg() {
-    _args.erase(_args.begin(), _args.end());
+    _args.clear();
 }
 
 Channel *PrivateMessageCommand::getChannelFromArg() {
-    if (_args.empty()) {
+    if (_args.size() < 2) {
         return nullptr;
     }
-    else {
-        std::string getName = _args[1].substr(1, _args[1].size());
 
-        Channel* channel = _server->getChannel(getName);
-
-        if (channel == nullptr)
-        {
-            return  nullptr;
-        }
-        else
-        {
-            if(channel  != nullptr)
-            {
-
-                return  channel;
-            }
-        }
-        return nullptr;
-    }
+    std::string getName = _args[1].substr(1);
+    return _server->getChannel(getName);
 }

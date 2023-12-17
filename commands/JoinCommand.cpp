@@ -11,6 +11,7 @@ JoinCommand::~JoinCommand() {}
 
 void JoinCommand::execute() {
 
+
 	if (!_sender->didRegister())
 	    throw ERR_RESTRICTED;
 	if (_args.size() < 1)

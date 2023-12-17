@@ -65,18 +65,16 @@ User			*Channel::getUser(std::string userName)
 	return nullptr;
 }
 
-void				Channel::removeUser(User *user)
+void Channel::removeUser(User *user)
 {
-	std::vector<User *>::iterator it;
+    std::vector<User *>::iterator it = std::find(_users.begin(), _users.end(), user);
 
-	for (it = _users.begin(); it < _users.end(); it++) {
-		if (*it == user) {
-			_users.erase(it);
-			(*it)->setChannel(nullptr);
-			break ;
-		}
-	}
-	if (_users.empty()) {
-		_server->deleteChannel(this);
-	}
+    if (it != _users.end()) {
+        (*it)->setChannel(nullptr);
+        _users.erase(it);
+    }
+
+    if (_users.empty()) {
+        _server->deleteChannel(this);
+    }
 }
