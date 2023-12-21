@@ -5,7 +5,7 @@ int main(int ac, char **av) {
    
    try
     {
-    checkarg::check_args(ac);
+    checkarg::check_args(ac, av);
     Server ircserv("127.0.0.1", av[1], av[2]);
     ircserv.start();
     }

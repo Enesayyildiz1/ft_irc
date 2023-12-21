@@ -1,5 +1,4 @@
 #include "headers/Server.hpp"
-// * ************** Constructor & Destructor ************** * //
 
 Server::Server(std::string host, std::string port, std::string password) : _host(host), _port(port), _password(password)
 {
@@ -9,7 +8,6 @@ Server::Server(std::string host, std::string port, std::string password) : _host
 
 Server::~Server() { }
 
-// * ************** Getter & Setter ************** * //
 
 User			*Server::getUser(std::string userName)
 {
@@ -38,8 +36,6 @@ Channel			*Server::getChannel(std::string name)
 	}
 	return nullptr;
 }
-
-// * ************** Main Server function ************** * //
 
 void			Server::start()
 {
@@ -101,10 +97,8 @@ void Server::action() {
             handlePollHup(curPollfd);
         } else if (curPollfd.revents & POLLIN) {
             if (curPollfd.fd == _sock) {
-                // New client connection
                 greeting(acceptUser());
             } else {
-                // Existing client has data to read
                 handleClientData(curPollfd);
             }
         }
@@ -119,7 +113,7 @@ void Server::handlePollHup(const pollfd& curPollfd) {
                 std::vector<User*>::iterator itUser = _users.begin() + userIndex;
 
                 if (_users.empty()) {
-                    return; // Döngüyü sonlandır
+                    return;
                 }
 
                 if ((*itUser)->didRegister() && ((*itUser)->getName() != "user_example")) {
@@ -143,6 +137,7 @@ void Server::handleClientData(const pollfd& curPollfd) {
 
         if (itPollfd != _pollfds.end() && itPollfd->fd == curPollfd.fd) {
             ssize_t byteRecved = recvMsg(*itUser);
+			(void)byteRecved;
             _Invoker->processData(*itUser, (*itUser)->getMessage());
             break;
         }
@@ -165,8 +160,6 @@ int				Server::recvMsg(User *user) {
 	}
 	return (byteRecved);
 }
-
-// * ************** Added function ************** * //
 
 void			Server::removeUser(std::string id)
 {
@@ -196,8 +189,6 @@ void	Server::deleteChannel(Channel *channel) {
 	}
 }
 
-// * ************** Extra function ************** * //
-//
 int				Server::createSocket()
 {
 	addrinfo	hints;
@@ -221,14 +212,14 @@ int				Server::createSocket()
 		if (sock == -1)
 			continue;
 
-		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)	// Choose Socket option
+		if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)	
 		{
 			close(sock);
 			freeaddrinfo(servinfo);
 			throw std::runtime_error("error: setsockopt");
 		}
 
-		if (bind(sock, p->ai_addr, p->ai_addrlen)==-1)		// Bind socket with some addr
+		if (bind(sock, p->ai_addr, p->ai_addrlen)==-1)		
 		{
 			close(sock);
 			continue;
@@ -239,7 +230,7 @@ int				Server::createSocket()
 	freeaddrinfo(servinfo);
 	if (p == nullptr)
 		throw std::runtime_error("error: failed to find address");
-	if (listen(sock, MAX_CONNECTION) == -1)						// Make listen socket
+	if (listen(sock, MAX_CONNECTION) == -1)				
 		throw std::runtime_error("error: listen");
 
 	return sock;

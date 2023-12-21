@@ -9,7 +9,6 @@ class QuitCommand: public Command {
 		QuitCommand();
 		virtual ~QuitCommand();
 		void execute();
-        void sendReplyToChannel(Channel* channel, std::string message) const ;
 };
 
 #endif

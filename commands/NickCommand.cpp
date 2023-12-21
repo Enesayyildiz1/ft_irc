@@ -17,8 +17,6 @@ void NickCommand::execute()
 
     if(_server->getUser(newNick))
         throw ERR_NICKNAMEINUSE(newNick);
-
-    //delete
     if(oldNick != "")
         _sender->sendMessage(_sender, "Nick " + newNick.substr(0, 9));
 

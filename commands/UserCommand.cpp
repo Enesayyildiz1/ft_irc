@@ -14,7 +14,5 @@ void UserCommand::execute()
         throw ERR_NEEDMOREPARAMS(_name);
     _sender->setUsername(_args[1]);
     _sender->setRealname(_args[2]);
-    //std::cout << "username: " << _args[1] ;
-    //std::cout << "realname: " << _args[2] ;
     _sender->doRegister();
 }

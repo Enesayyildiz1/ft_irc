@@ -6,7 +6,7 @@
 namespace checkarg
 {
 
-void check_args(int ac);
+void check_args(int ac,char **av);
 }
 
 #endif

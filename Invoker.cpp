@@ -14,8 +14,6 @@
 #include "headers/WhoCommand.hpp"
 Invoker::Invoker(Server *server) : _server(server)
 {
-
-    //std::cout <<server<<"Selam" <<std::endl; 
     _commands.push_back(new HelpCommand(_commands));
     _commands.push_back(new PassCommand());
     _commands.push_back(new NickCommand());
@@ -45,7 +43,6 @@ bool Invoker::isCommand(std::string data)
     
     for (it = _commands.begin(); it !=_commands.end(); it++)
     {
-        //std::cout << "Girdi" << std::endl;
         if((*it)->getName() == data)
             return true;
 
@@ -58,11 +55,8 @@ void Invoker::processCommand(User *sender, std::deque<std::string> args)
 {
     
     std::string commandName = args[0];
-    //std::cout << "*" << _commands[0]->getName() << "*" << std::endl;
-
     for (size_t i = 0; i < _commands.size(); i++) {
 		if (commandName == _commands[i]->getName()) {
-            //std::cout << "İçerideyim";
 			_commands[i]->setServer(_server);
 			_commands[i]->setSender(sender);
 			_commands[i]->setArgs(args);
@@ -102,11 +96,9 @@ std::deque<std::string> Invoker::dataToArgs(std::string data)
 void Invoker::processData(User *sender, std::string data)
 {
     std::deque<std::string> arguments = dataToArgs(data);
-    //isCommand(arguments[0]);
     if(!arguments.empty() && isCommand(arguments[0]))
     {
         std::cout << "@" << sender->getName() << " " << data;
-        //std::cout << "Tam olarak burasi" << sender->getName() << " " << data; // delete
 		processCommand(sender, arguments);
     }
     

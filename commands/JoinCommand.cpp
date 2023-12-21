@@ -22,7 +22,6 @@ void JoinCommand::execute() {
 	Channel *channel = _server->getChannel(_args[1]);
 	if (!channel) {
 		channel = _server->createChannel(_args[1], _sender);
-        //std::cout << "burada";
 	}
 	_sender->setChannel(channel);
 	channel->addUser(_sender);
