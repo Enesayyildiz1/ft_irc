@@ -2,7 +2,6 @@
 # define QUITCOMMAND_HPP
 # include "Command.hpp"
 
-// TODO: leave channel then 
 
 
 class QuitCommand: public Command {

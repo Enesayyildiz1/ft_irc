@@ -2,7 +2,7 @@
 
 PrivateMessageCommand::PrivateMessageCommand() {
     _name = "PRIVMSG";
-    _description = "";
+    _description = "PRIVMSG <#channeloruser> <yourmessage>";
 }
 
 PrivateMessageCommand::~PrivateMessageCommand() {}
