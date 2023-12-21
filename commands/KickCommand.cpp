@@ -13,7 +13,7 @@ void KickCommand::execute() {
         throw ERR_RESTRICTED;
 
     // Kontrol: Argüman sayısı doğru mu?
-    if (_args.size() < 2)
+    if (_args.size() < 3)
         throw ERR_NEEDMOREPARAMS(_name);
 
     // Kontrol: Kanal adı geçerli mi?

@@ -28,11 +28,11 @@ void WhoCommand::execute() {
     _sender->getReply("Channel " + channel->getName() + " has " + std::to_string(users.size()) + " users");
 
     // Kullanıcıları sırayla gönder
-    for (const auto& user : users) {
-        // Kontrol: Kullanıcı admin mi?
-        if (channel->getAdmin() == user)
-            _sender->getReply("@" + user->getName());
-        else
-            _sender->getReply(user->getName());
-    }
+    for (std::vector<User*>::const_iterator it = users.begin(); it != users.end(); ++it) {
+    // Kontrol: Kullanıcı admin mi?
+		if (channel->getAdmin() == *it)
+			_sender->getReply("@" + (*it)->getName());
+		else
+			_sender->getReply((*it)->getName());
+	}
 }

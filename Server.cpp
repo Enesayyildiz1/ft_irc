@@ -228,7 +228,7 @@ int				Server::createSocket()
 			throw std::runtime_error("error: setsockopt");
 		}
 
-		if (bind(sock, p->ai_addr, p->ai_addrlen) == -1)		// Bind socket with some addr
+		if (bind(sock, p->ai_addr, p->ai_addrlen)==-1)		// Bind socket with some addr
 		{
 			close(sock);
 			continue;

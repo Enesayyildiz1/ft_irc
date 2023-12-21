@@ -2,6 +2,7 @@
 #define USER_CLASS_HPP
 #include"libraries.hpp"
 #include "../channel/Channel.hpp"
+#include<vector>
 
 class Channel;
 class User
