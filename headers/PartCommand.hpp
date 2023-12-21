@@ -9,7 +9,6 @@ class PartCommand: public Command {
 		PartCommand();
 		virtual ~PartCommand();
 		void execute();
-		void sendReplyToChannel(Channel* channel, const std::string& message) const ;
 };
 
 #endif

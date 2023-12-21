@@ -36,24 +36,7 @@ void PartCommand::execute() {
     }
 
     // Başarılı kontrol durumu
-    sendReplyToChannel(channel, _sender->getPrefix() + " " + _name + " #" + channel->getName());
     _sender->removeUserFromChannel();
     _sender->setChannel(nullptr);
 }
 
-void PartCommand::sendReplyToChannel(Channel* channel, const std::string& message) const {
-    // Kontrol 6: Kanal null değilse devam et
-    if (channel) {
-        const std::vector<User*>& users = channel->getUsers();
-
-        // Kontrol 7: Kullanıcı vektörünün boş olup olmadığını kontrol et
-        if (!users.empty()) {
-            for (std::vector<User*>::const_iterator user = users.begin(); user != users.end(); user++) {
-                // Kontrol 8: Kullanıcı null değilse mesajı gönder
-                if (*user) {
-                    (*user)->getReply(message);
-                }
-            }
-        }
-    }
-}
